@@ -367,6 +367,31 @@ void initializeDefaultLightMaterials(out SLight light, out SMaterial materials[5
         y += 0.2;
     }
 
+    //float x = -1.0f;
+    //float y = -1.0f;
+
+    //for(int i =0;i<10;i++)
+    //{
+    //    x = -1.0f;
+    //    for(int j = 0; j < 10; j++)
+    //    {
+    //        if (x < 0.01 && x > -0.1)
+    //        {
+    //            x = 0.2;
+    //        }
+    //        if (y < 0.01 && y > -0.1)
+    //        {
+    //            y = 0.2;
+    //        }
+    //        lights[i*10 + j].Position = vec3(x,y, -7.0f);
+    //        x += 0.2;
+    //        
+    //    }
+    //    y += 0.2;
+    //}
+
+
+
     /** MATERIALS **/
     //ka - ambient, kd - diff, ks - specular, p - glare
     vec4 lightCoefs = vec4(0.3,0.8,0.2,64);
