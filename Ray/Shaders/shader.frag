@@ -69,6 +69,8 @@ struct SLight
     vec3 Position; 
 }; 
 
+SLight lights[100];
+
 struct STracingRay 
 { 
     SRay ray; 
@@ -342,7 +344,28 @@ bool Raytrace(SRay ray, SSphere spheres[4], STriangle triangles[12], SMaterial m
 void initializeDefaultLightMaterials(out SLight light, out SMaterial materials[5])
 {
     //** LIGHT **//
-    light.Position = vec3(0.0, 3.0, -7.0f);
+    float x = -1.0f;
+    float y = 2.0f;
+
+    for(int i =0;i<10;i++)
+    {
+        x = -1.0f;
+        for(int j = 0; j < 10; j++)
+        {
+            if (x < 0.01 && x > -0.2)
+            {
+                x = 0.2;
+            }
+            if (y < 3.0001 && y > 2.9)
+            {
+                y = 3.2;
+            }
+            lights[i*10 + j].Position = vec3(x,y, -7.0f);
+            x += 0.2;
+            
+        }
+        y += 0.2;
+    }
 
     /** MATERIALS **/
     //ka - ambient, kd - diff, ks - specular, p - glare
@@ -432,7 +455,7 @@ float Shadow(SLight currLight, SIntersection intersect)
 SCamera initializeDefaultCamera()
 {
     SCamera camera;
-    camera.Position = vec3(0.0, 0.0, -8.0);
+    camera.Position = vec3(0.0, 0.0, -10.0);
     camera.View = vec3(0.0, 0.0, 1.0);
     camera.Up = vec3(0.0, 1.0, 0.0);
     camera.Side = vec3(1.0, 0.0, 0.0);
@@ -452,7 +475,7 @@ void main ( void )
     vec3 resultColor = vec3(0,0,0);
     initializeDefaultScene(triangles, spheres);
 
-    STracingRay trRay = STracingRay(ray, 1, 0);
+    STracingRay trRay = STracingRay(ray, 0.01, 0);
 	pushRay(trRay);
 	while(!isEmpty())
 	{
@@ -468,8 +491,12 @@ void main ( void )
 			{
 				case DIFFUSE_REFLECTION:
 				{
-					float shadowing = Shadow(light, intersect);
-					resultColor += trRay.contribution * Phong ( intersect, light, shadowing );
+                    for(int i = 0; i < 100;i++)
+                    {
+                        float shadowing = Shadow(lights[i], intersect);
+					    resultColor += trRay.contribution * Phong ( intersect, lights[i], shadowing );
+                    }
+					
 					break;
 				}
 				case MIRROR_REFLECTION:  
@@ -477,9 +504,13 @@ void main ( void )
                     if(intersect.ReflectionCoef < 1) //check if its not 100% mirror
                     { 
                     //then we have to calc the contibution
-                        float contribution = trRay.contribution * (1 - intersect.ReflectionCoef); 
-                        float shadowing = Shadow(light, intersect); 
-                        resultColor += contribution * Phong(intersect, light, shadowing); 
+                        
+                        for(int i = 0; i < 100;i++)
+                        {
+                            float contribution = trRay.contribution * (1 - intersect.ReflectionCoef); 
+                            float shadowing = Shadow(lights[i], intersect);
+					        resultColor += trRay.contribution * Phong ( intersect, lights[i], shadowing );
+                        }
                     } 
                     //create new reflected ray
                     vec3 reflectDirection = reflect(ray.Direction, intersect.Normal); 
